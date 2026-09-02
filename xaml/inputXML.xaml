@@ -1278,7 +1278,7 @@
                             </MenuItem>
                             <MenuItem FontSize="{DynamicResource ButtonFontSize}" Header="Export" Name="ExportMenuItem" Foreground="{DynamicResource MainForegroundColor}">
                                 <MenuItem.ToolTip>
-                                    <ToolTip Content="Export Selected Elements and copy execution command to clipboard."/>
+                                    <ToolTip Content="Export selected elements and copy a local execution command to the clipboard."/>
                                 </MenuItem.ToolTip>
                             </MenuItem>
                             <Separator/>

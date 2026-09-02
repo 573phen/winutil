@@ -387,6 +387,38 @@ Describe "Invoke-WPFImpex import selection state" {
     }
 }
 
+Describe "Invoke-WPFImpex export command" {
+    BeforeEach {
+        New-WinUtilUiStateTestContext
+        $script:sync.selectedApps.Add("WPFInstallGit")
+        $script:clipboardValue = $null
+        Mock Set-Clipboard {
+            param($Value)
+            $script:clipboardValue = [string]$Value
+        }
+        Mock Write-Error { }
+    }
+
+    AfterEach {
+        Remove-Variable -Name sync -Scope Script -ErrorAction SilentlyContinue
+        Remove-Variable -Name sync -Scope Global -ErrorAction SilentlyContinue
+        Remove-Variable -Name clipboardValue -Scope Script -ErrorAction SilentlyContinue
+    }
+
+    It "copies a quoted local launcher command with an absolute config path" {
+        $configPath = Join-Path $TestDrive "CTI config's.json"
+
+        Invoke-WPFImpex -type "export" -Config $configPath
+
+        $escapedConfigPath = (Resolve-Path -LiteralPath $configPath).Path.Replace("'", "''")
+        $script:clipboardValue | Should -Match "^& '.+' -Config '"
+        $script:clipboardValue | Should -Match ([regex]::Escape($escapedConfigPath))
+        $script:clipboardValue | Should -Not -Match '(?i)https?://|\birm\b|\biex\b'
+        Should -Invoke -CommandName Set-Clipboard -Times 1 -Exactly
+        Should -Invoke -CommandName Write-Error -Times 0 -Exactly
+    }
+}
+
 Describe "Invoke-WPFSelectedCheckboxesUpdate" {
     BeforeEach {
         New-WinUtilUiStateTestContext

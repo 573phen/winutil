@@ -53,7 +53,16 @@ function Invoke-WPFImpex {
                     }
                     $jsonFile = $allConfs | ConvertTo-Json
                     $jsonFile | Out-File $Config -Force
-                    "iex ""& { `$(irm https://christitus.com/win) } -Config '$Config'""" | Set-Clipboard
+
+                    if (-not $PSCommandPath -or -not (Test-Path -LiteralPath $PSCommandPath -PathType Leaf)) {
+                        throw "The trusted local WinUtil script path could not be resolved."
+                    }
+
+                    $resolvedConfigPath = (Resolve-Path -LiteralPath $Config -ErrorAction Stop).Path
+                    $escapedScriptPath = $PSCommandPath.Replace("'", "''")
+                    $escapedConfigPath = $resolvedConfigPath.Replace("'", "''")
+                    $localCommand = "& '$escapedScriptPath' -Config '$escapedConfigPath'"
+                    Set-Clipboard -Value $localCommand
                 }
             } catch {
                 Write-Error "An error occurred while exporting: $_"

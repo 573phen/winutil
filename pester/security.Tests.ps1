@@ -46,3 +46,20 @@ Describe "PowerShell profile source trust" {
         $script:features.WPFWinUtilInstallPSProfile.Content | Should -Be 'CTT PowerShell Profile - Blocked'
     }
 }
+
+Describe "Configuration export source trust" {
+    BeforeAll {
+        $script:impexPath = Join-Path $script:repoRoot "functions\public\Invoke-WPFImpex.ps1"
+        $script:impex = Get-Content -Path $script:impexPath -Raw
+    }
+
+    It "does not copy a remote execution command" {
+        $script:impex | Should -Not -Match '(?i)\birm\b|\biex\b|christitus\.com/win'
+    }
+
+    It "builds the command from the trusted local script and resolved config paths" {
+        $script:impex | Should -Match '\$PSCommandPath'
+        $script:impex | Should -Match 'Resolve-Path -LiteralPath \$Config'
+        $script:impex | Should -Match 'Set-Clipboard -Value \$localCommand'
+    }
+}
