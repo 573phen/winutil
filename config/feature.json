@@ -334,7 +334,7 @@
     "link": "https://winutil.christitus.com/code-reference/features/legacy-windows-panels/restore"
   },
   "WPFWinUtilInstallPSProfile": {
-    "Content": "CTT PowerShell Profile - Install",
+    "Content": "CTT PowerShell Profile - Blocked",
     "category": "Powershell Profile Powershell 7+ Only",
     "panel": "2",
     "Type": "Button",
