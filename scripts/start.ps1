@@ -23,6 +23,11 @@ if ($ExecutionContext.SessionState.LanguageMode -ne 'FullLanguage') {
     return
 }
 
+if (-not $PSCommandPath) {
+    Write-Error "CTI Windows Baseline must be run from a trusted local script file. Remote or in-memory execution is blocked."
+    return
+}
+
 if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
     Write-Output "WinUtil needs to be run as Administrator. Attempting to relaunch."
     $argList = @()
@@ -37,11 +42,7 @@ if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
         }
     }
 
-    $script = if ($PSCommandPath) {
-        "& { & `'$($PSCommandPath)`' $($argList -join ' ') }"
-    } else {
-        "&([ScriptBlock]::Create((irm https://github.com/ChrisTitusTech/winutil/releases/latest/download/winutil.ps1))) $($argList -join ' ')"
-    }
+    $script = "& { & `'$($PSCommandPath)`' $($argList -join ' ') }"
 
     $powershellCmd = if (Get-Command pwsh -ErrorAction SilentlyContinue) { "pwsh" } else { "powershell" }
     $processCmd = if (Get-Command wt.exe -ErrorAction SilentlyContinue) { "wt.exe" } else { "$powershellCmd" }
